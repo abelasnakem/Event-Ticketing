@@ -1,0 +1,70 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-blur: 18px;
+  --bg-gradient: linear-gradient(135deg, #0b0c1e 0%, #151742 50%, #05060f 100%);
+  --sidebar-width: 280px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Space Grotesk', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: #f5f6fa;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: 0 20px 60px rgba(5, 6, 15, 0.45);
+}
+
+.glass-header {
+  background: rgba(7, 8, 20, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-nav {
+  background: rgba(7, 8, 20, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+html[data-mantine-color-scheme='light'] body {
+  background: linear-gradient(135deg, #f4f6ff 0%, #dde7ff 50%, #fdfbff 100%);
+  color: #0f1222;
+}
+
+html[data-mantine-color-scheme='light'] .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(13, 18, 54, 0.08);
+  box-shadow: 0 20px 40px rgba(15, 18, 54, 0.08);
+}
+
+html[data-mantine-color-scheme='light'] .glass-nav,
+html[data-mantine-color-scheme='light'] .glass-header {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(13, 18, 54, 0.08);
+}
