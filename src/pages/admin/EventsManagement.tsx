@@ -65,6 +65,7 @@ export default function EventsManagement() {
         <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>#</Table.Th>
               <Table.Th>Event</Table.Th>
               <Table.Th>Organizer</Table.Th>
               <Table.Th>Tickets</Table.Th>
@@ -74,8 +75,9 @@ export default function EventsManagement() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {filtered.map((event) => (
+            {filtered.map((event, index) => (
               <Table.Tr key={event.id}>
+                <Table.Td>{index + 1}</Table.Td>
                 <Table.Td>
                   <Text fw={600}>{event.name}</Text>
                   <Text size="xs" ff="monospace" c="dimmed">

@@ -62,6 +62,7 @@ export default function Dashboard() {
           <Table striped highlightOnHover verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
+                <Table.Th>#</Table.Th>
                 <Table.Th>Ticket</Table.Th>
                 <Table.Th>Event</Table.Th>
                 <Table.Th>Reason</Table.Th>
@@ -70,8 +71,9 @@ export default function Dashboard() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {fraudRows.map((row) => (
+              {fraudRows.map((row, index) => (
                 <Table.Tr key={row.ticket}>
+                  <Table.Td>{index + 1}</Table.Td>
                   <Table.Td>
                     <Text ff="monospace">{row.ticket}</Text>
                   </Table.Td>

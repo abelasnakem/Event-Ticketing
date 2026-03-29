@@ -1,14 +1,15 @@
-import { ActionIcon, Badge, Button, Card, Group, Modal, Progress, Select, SimpleGrid, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Group, Modal, Paper, Progress, SegmentedControl, Select, SimpleGrid, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDeviceMobile, IconGift, IconLink, IconPlus, IconQrcode, IconShare3, IconUserPlus } from '@tabler/icons-react';
 import copy from 'copy-to-clipboard';
 import { QRCodeCanvas } from 'qrcode.react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { getOrganizerEvent } from '../../data/organizerEvents';
 import type { ScannerDevice } from '../../data/organizerEvents';
+import { toPng } from 'html-to-image';
 
 export default function EventDetails() {
   const { eventId = '' } = useParams();
@@ -18,6 +19,9 @@ export default function EventDetails() {
   const [inviteOpened, inviteHandlers] = useDisclosure(false);
   const [giftRecipient, setGiftRecipient] = useState({ phone: '', message: 'Enjoy the show!' });
   const [giftTier, setGiftTier] = useState(event?.tickets[0]?.label ?? 'Regular');
+  const [shareOrientation, setShareOrientation] = useState<'landscape' | 'portrait'>('landscape');
+  const shareCardRef = useRef<HTMLDivElement | null>(null);
+  const qrCanvasWrapperRef = useRef<HTMLDivElement | null>(null);
 
   if (!event) {
     return (
@@ -35,6 +39,29 @@ export default function EventDetails() {
   const handleCopyLink = () => {
     copy(eventLink);
     notifications.show({ title: 'Link copied', message: 'Share it with fans or partners.', color: 'teal' });
+  };
+
+  const handleDownloadShareCard = async () => {
+    if (!shareCardRef.current) return;
+    try {
+      const dataUrl = await toPng(shareCardRef.current, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `${event.id}-${shareOrientation}-card.png`;
+      link.click();
+    } catch (error) {
+      notifications.show({ title: 'Unable to export card', message: 'Retry or try another browser.', color: 'red' });
+    }
+  };
+
+  const handleDownloadQr = () => {
+    const canvas = qrCanvasWrapperRef.current?.querySelector('canvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `${event.id}-qr.png`;
+    link.click();
   };
 
   const handleScannerAdd = () => {
@@ -105,11 +132,78 @@ export default function EventDetails() {
 
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
         <Card padding="xl" className="glass-panel">
-          <Group justify="space-between" mb="lg">
+          <Group justify="space-between" mb="lg" align="flex-start">
             <div>
-              <Title order={4}>Smart link</Title>
+              <Title order={4}>Social share card</Title>
               <Text size="sm" c="dimmed">
-                Drop the link anywhere — resale, discovery, gifting.
+                Download a landscape or portrait PNG with QR + artwork.
+              </Text>
+            </div>
+            <SegmentedControl
+              value={shareOrientation}
+              onChange={(value) => setShareOrientation(value as 'landscape' | 'portrait')}
+              data={[{ label: 'Landscape', value: 'landscape' }, { label: 'Portrait', value: 'portrait' }]}
+            />
+          </Group>
+          <Paper
+            ref={shareCardRef}
+            shadow="xl"
+            radius="lg"
+            p={shareOrientation === 'landscape' ? 'lg' : 'md'}
+            style={{
+              background: '#05060f',
+              color: '#fff',
+              display: shareOrientation === 'landscape' ? 'flex' : 'block',
+              gap: 16,
+              maxWidth: shareOrientation === 'landscape' ? 540 : 320,
+              marginInline: 'auto',
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                borderRadius: 16,
+                backgroundImage: `url(${event.bannerUrl ?? 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80'})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                minHeight: shareOrientation === 'landscape' ? 180 : 140,
+              }}
+            />
+            <Stack gap="sm" style={{ flex: shareOrientation === 'landscape' ? 0.8 : undefined }}>
+              <Text size="sm" c="dimmed">
+                Digis presents
+              </Text>
+              <Text fw={700} fz="lg" style={{ lineHeight: 1.2 }}>
+                {event.name}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {dayjs(event.datetime).format('MMM D, YYYY · h:mm A')}
+              </Text>
+              <Text size="sm">{event.venue}, {event.city}</Text>
+              <div style={{ alignSelf: shareOrientation === 'landscape' ? 'flex-start' : 'center' }}>
+                <QRCodeCanvas value={eventLink} size={shareOrientation === 'landscape' ? 120 : 150} bgColor="transparent" fgColor="#fff" />
+                <Text size="xs" c="dimmed" ta="center">
+                  Scan to claim
+                </Text>
+              </div>
+            </Stack>
+          </Paper>
+          <Group mt="lg" justify="flex-end">
+            <Button variant="light" leftSection={<IconLink size={16} />} onClick={handleCopyLink}>
+              Copy link
+            </Button>
+            <Button color="nightfall" leftSection={<IconQrcode size={16} />} onClick={handleDownloadShareCard}>
+              Download PNG
+            </Button>
+          </Group>
+        </Card>
+
+        <Card padding="xl" className="glass-panel">
+          <Group justify="space-between" mb="lg" align="flex-start">
+            <div>
+              <Title order={4}>Smart link & QR</Title>
+              <Text size="sm" c="dimmed">
+                Send the link or print the QR for venues.
               </Text>
             </div>
             <Group gap="xs">
@@ -131,17 +225,18 @@ export default function EventDetails() {
               </ActionIcon>
             </Group>
           </Group>
-          <TextInput value={eventLink} readOnly label="Public link" radius="md" />
-        </Card>
-
-        <Card padding="xl" className="glass-panel" style={{ textAlign: 'center' }}>
-          <Title order={4} mb="md">
-            Printable QR
-          </Title>
-          <QRCodeCanvas value={eventLink} size={180} bgColor="transparent" fgColor="#f5f6fa" />
-          <Text size="sm" c="dimmed" mt="md">
-            Gate staff can scan offline and sync later.
-          </Text>
+          <TextInput value={eventLink} readOnly label="Public link" radius="md" mb="md" />
+          <div ref={qrCanvasWrapperRef} style={{ textAlign: 'center' }}>
+            <QRCodeCanvas value={eventLink} size={200} bgColor="transparent" fgColor="#f5f6fa" />
+            <Text size="sm" c="dimmed" mt="md">
+              Gate staff can scan offline and sync later.
+            </Text>
+          </div>
+          <Group mt="lg" justify="center">
+            <Button variant="light" onClick={handleDownloadQr} leftSection={<IconQrcode size={16} />}>
+              Download QR PNG
+            </Button>
+          </Group>
         </Card>
       </SimpleGrid>
 
@@ -155,6 +250,7 @@ export default function EventDetails() {
         <Table verticalSpacing="md" highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>#</Table.Th>
               <Table.Th>Tier</Table.Th>
               <Table.Th>Price</Table.Th>
               <Table.Th>Inventory</Table.Th>
@@ -162,10 +258,11 @@ export default function EventDetails() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {event.tickets.map((tier) => {
+            {event.tickets.map((tier, index) => {
               const progress = Math.round((tier.sold / tier.total) * 100);
               return (
                 <Table.Tr key={tier.id}>
+                  <Table.Td>{index + 1}</Table.Td>
                   <Table.Td>
                     <Text fw={600}>{tier.label}</Text>
                   </Table.Td>
@@ -217,6 +314,7 @@ export default function EventDetails() {
         <Table verticalSpacing="md" highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>#</Table.Th>
               <Table.Th>Label</Table.Th>
               <Table.Th>Phone</Table.Th>
               <Table.Th>Invitation code</Table.Th>
@@ -224,8 +322,9 @@ export default function EventDetails() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {scanners.map((device) => (
+            {scanners.map((device, index) => (
               <Table.Tr key={device.id}>
+                <Table.Td>{index + 1}</Table.Td>
                 <Table.Td>{device.label}</Table.Td>
                 <Table.Td>{device.phone}</Table.Td>
                 <Table.Td>

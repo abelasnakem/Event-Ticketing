@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Card, Group, Progress, SimpleGrid, Table, Text, ThemeIcon, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Divider, Group, Progress, SimpleGrid, Stack, Table, Text, ThemeIcon, Timeline, Title } from '@mantine/core';
 import { IconArrowRight, IconCalendarEvent, IconDeviceMobile, IconTicket, IconUsers } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +26,11 @@ const statsConfig = [
     icon: IconDeviceMobile,
     color: 'violet',
   },
+];
+
+const payoutHistory = [
+  { id: 'PAYOUT-2043', amount: '420,000 ETB', status: 'Processing', date: 'Mar 26, 2026' },
+  { id: 'PAYOUT-2038', amount: '1,200,000 ETB', status: 'Completed', date: 'Mar 18, 2026' },
 ];
 
 export default function OrganizerDashboard() {
@@ -83,6 +88,7 @@ export default function OrganizerDashboard() {
           <Table verticalSpacing="md" highlightOnHover>
             <Table.Thead>
               <Table.Tr>
+                <Table.Th>#</Table.Th>
                 <Table.Th>Event</Table.Th>
                 <Table.Th>Date</Table.Th>
                 <Table.Th>Fill rate</Table.Th>
@@ -90,13 +96,14 @@ export default function OrganizerDashboard() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {organizerEvents.map((event) => {
+              {organizerEvents.map((event, index) => {
                 const total = event.tickets.reduce((sum, tier) => sum + tier.total, 0);
                 const sold = event.tickets.reduce((sum, tier) => sum + tier.sold, 0);
                 const progress = Math.round((sold / total) * 100);
 
                 return (
                   <Table.Tr key={event.id}>
+                    <Table.Td>{index + 1}</Table.Td>
                     <Table.Td>
                       <Text fw={600}>{event.name}</Text>
                       <Text size="xs" c="dimmed">
@@ -152,6 +159,93 @@ export default function OrganizerDashboard() {
               </Card>
             ))}
           </SimpleGrid>
+        </Card>
+      </SimpleGrid>
+
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl" mt="xl">
+        <Card className="glass-panel" padding="xl">
+          <Group justify="space-between" align="center" mb="lg">
+            <div>
+              <Title order={3}>Easy onboarding</Title>
+              <Text size="sm" c="dimmed">
+                Three quick steps to go live on Digis.
+              </Text>
+            </div>
+            <Button variant="light" radius="lg">
+              Talk to concierge
+            </Button>
+          </Group>
+          <Timeline active={1} bulletSize={28} lineWidth={2} color="nightfall">
+            <Timeline.Item title="Verify organization">
+              <Text size="sm" c="dimmed">
+                Upload license + primary contact within 5 minutes.
+              </Text>
+            </Timeline.Item>
+            <Timeline.Item title="Connect payout rails">
+              <Text size="sm" c="dimmed">
+                Add Telebirr, bank, or Chapa settlement accounts.
+              </Text>
+            </Timeline.Item>
+            <Timeline.Item title="Publish first experience">
+              <Text size="sm" c="dimmed">
+                Duplicate a past show or build a new template.
+              </Text>
+            </Timeline.Item>
+          </Timeline>
+        </Card>
+
+        <Card className="glass-panel" padding="xl">
+          <Title order={3} mb="sm">
+            Wallet & withdrawals
+          </Title>
+          <Text size="sm" c="dimmed" mb="lg">
+            Track available balance, settlement status, and initiate payouts.
+          </Text>
+          <Stack gap="md">
+            <Group justify="space-between">
+              <div>
+                <Text size="sm" c="dimmed">
+                  Available balance
+                </Text>
+                <Text fw={700} fz="xl">
+                  2,540,000 ETB
+                </Text>
+              </div>
+              <Group gap="sm">
+                <Button variant="light" color="gray">
+                  Connect bank
+                </Button>
+                <Button color="nightfall">Request payout</Button>
+              </Group>
+            </Group>
+            <Divider label="Recent payouts" labelPosition="center" variant="dashed" color="rgba(255,255,255,0.2)" />
+            <Table verticalSpacing="sm" highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>#</Table.Th>
+                  <Table.Th>Reference</Table.Th>
+                  <Table.Th>Amount</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Date</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {payoutHistory.map((payout, index) => (
+                  <Table.Tr key={payout.id}>
+                    <Table.Td>{index + 1}</Table.Td>
+                    <Table.Td>
+                      <Text fw={600}>{payout.id}</Text>
+                    </Table.Td>
+                    <Table.Td>{payout.amount}</Table.Td>
+                    <Table.Td>
+                      <Badge color={payout.status === 'Completed' ? 'teal' : 'yellow'}>{payout.status}</Badge>
+                    </Table.Td>
+                    <Table.Td>{payout.date}</Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Stack>
         </Card>
       </SimpleGrid>
     </div>

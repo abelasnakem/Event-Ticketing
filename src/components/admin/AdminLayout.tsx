@@ -32,7 +32,7 @@ export default function AdminLayout() {
           <Group>
             <Burger opened={opened} onClick={toggle} hiddenFrom="md" size="sm" color="#f5f6fa" />
             <Text fw={700} fz="lg">
-              EthioTix Admin
+              Digis Admin
             </Text>
             <Badge radius="sm" variant="light" color="nightfall">
               Beta

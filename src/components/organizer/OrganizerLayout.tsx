@@ -41,7 +41,7 @@ export default function OrganizerLayout() {
           <Group gap="md" align="center">
             <Burger opened={opened} onClick={toggle} hiddenFrom="lg" color="#f5f6fa" size="sm" />
             <div>
-              <Text fw={700}>EthioTix Studio</Text>
+              <Text fw={700}>Digis Studio</Text>
               <Text size="sm" c="dimmed">
                 Organizer mode
               </Text>

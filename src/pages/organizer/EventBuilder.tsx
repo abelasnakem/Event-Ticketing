@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Group, NumberInput, SimpleGrid, Stack, Text, TextInput, Textarea, Title } from '@mantine/core';
+import { ActionIcon, Button, Card, FileInput, Group, Image, NumberInput, SimpleGrid, Stack, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { IconCheck, IconPlus, IconTrash, IconTicket } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
@@ -19,11 +19,12 @@ export default function EventBuilder() {
       venue: '',
       city: '',
       datetime: '',
-      banner: '',
     },
   });
 
   const [tiers, setTiers] = useState(presetTiers);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const addTier = () => {
@@ -42,8 +43,22 @@ export default function EventBuilder() {
     setTiers((current) => current.filter((_, idx) => idx !== index));
   };
 
+  const handleBannerUpload = (file: File | null) => {
+    if (!file) {
+      setBannerFile(null);
+      setBannerPreview(null);
+      return;
+    }
+    setBannerFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBannerPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = form.onSubmit((values) => {
-    const payload = { ...values, tiers };
+    const payload = { ...values, tiers, banner: bannerPreview, bannerFileName: bannerFile?.name };
     console.log('Draft event payload', payload);
     notifications.show({
       title: 'Event draft saved',
@@ -84,7 +99,22 @@ export default function EventBuilder() {
               required
               {...form.getInputProps('datetime')}
             />
-            <TextInput label="Banner image URL" placeholder="https://..." {...form.getInputProps('banner')} />
+            <FileInput
+              label="Banner artwork"
+              placeholder="Upload hero image"
+              accept="image/*"
+              value={bannerFile}
+              onChange={handleBannerUpload}
+              description="Landscape 3:2 works best for share cards"
+            />
+            {bannerPreview && (
+              <Stack gap={4}>
+                <Image src={bannerPreview} radius="md" alt="Event banner preview" />
+                <Text size="xs" c="dimmed">
+                  Banner preview
+                </Text>
+              </Stack>
+            )}
           </Stack>
         </Card>
 

@@ -24,6 +24,8 @@ export type OrganizerEvent = {
   datetime: string;
   status: 'Draft' | 'Published' | 'Live';
   link: string;
+  bannerUrl?: string;
+  brandColor?: string;
   tickets: TicketTier[];
   scanners: ScannerDevice[];
 };
@@ -36,7 +38,9 @@ export const organizerEvents: OrganizerEvent[] = [
     venue: 'Friendship Park',
     datetime: dayjs().add(14, 'day').toISOString(),
     status: 'Published',
-    link: 'https://ethiotix.com/e/evt-gize-2045',
+    link: 'https://digis.events/e/evt-gize-2045',
+    bannerUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=900&q=80',
+    brandColor: '#ff6b6b',
     tickets: [
       { id: 'regular', label: 'Regular', price: 700, total: 12000, sold: 9230 },
       { id: 'vip', label: 'VIP', price: 2200, total: 3000, sold: 1980 },
@@ -54,7 +58,9 @@ export const organizerEvents: OrganizerEvent[] = [
     venue: 'Millennium Hall',
     datetime: dayjs().add(32, 'day').toISOString(),
     status: 'Draft',
-    link: 'https://ethiotix.com/e/evt-tech-5123',
+    link: 'https://digis.events/e/evt-tech-5123',
+    bannerUrl: 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=900&q=80',
+    brandColor: '#4dabf7',
     tickets: [
       { id: 'regular', label: 'General', price: 950, total: 1500, sold: 400 },
       { id: 'vip', label: 'Founder Pass', price: 3200, total: 200, sold: 40 },
