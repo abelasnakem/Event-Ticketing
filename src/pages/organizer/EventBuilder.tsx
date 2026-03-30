@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, FileInput, Group, Image, NumberInput, SimpleGrid, Stack, Text, TextInput, Textarea, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, FileInput, Group, Image, MultiSelect, NumberInput, SimpleGrid, Stack, TagsInput, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { IconCheck, IconPlus, IconTrash, IconTicket } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { useState } from 'react';
@@ -6,9 +6,20 @@ import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 
 const presetTiers = [
-  { id: 'regular', label: 'Regular', price: 600, quantity: 1000 },
-  { id: 'vip', label: 'VIP', price: 2200, quantity: 300 },
-  { id: 'vvip', label: 'VVIP', price: 4200, quantity: 80 },
+  { id: 'regular', label: 'Regular', price: 600, quantity: 1000, perks: ['Main floor access'] },
+  { id: 'vip', label: 'VIP', price: 2200, quantity: 300, perks: ['Fast lane', 'Welcome drink'] },
+  { id: 'vvip', label: 'VVIP', price: 4200, quantity: 80, perks: ['Backstage', 'Bottle service'] },
+];
+
+const baseCategories = [
+  'Concert',
+  'Festival',
+  'Conference',
+  'Workshop',
+  'Meetup',
+  'Comedy',
+  'Sports',
+  'Charity',
 ];
 
 export default function EventBuilder() {
@@ -19,22 +30,32 @@ export default function EventBuilder() {
       venue: '',
       city: '',
       datetime: '',
+      categories: [] as string[],
     },
   });
 
   const [tiers, setTiers] = useState(presetTiers);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [categoryData, setCategoryData] = useState(baseCategories);
   const navigate = useNavigate();
 
   const addTier = () => {
-    setTiers((prev) => [...prev, { id: `tier-${Date.now()}`, label: 'Custom', price: 0, quantity: 50 }]);
+    setTiers((prev) => [...prev, { id: `type-${Date.now()}`, label: 'Custom', price: 0, quantity: 50, perks: [] }]);
   };
 
   const updateTier = (index: number, field: 'label' | 'price' | 'quantity', value: string | number) => {
     setTiers((current) => {
       const draft = [...current];
       draft[index] = { ...draft[index], [field]: value };
+      return draft;
+    });
+  };
+
+  const updateTierPerks = (index: number, perks: string[]) => {
+    setTiers((current) => {
+      const draft = [...current];
+      draft[index] = { ...draft[index], perks };
       return draft;
     });
   };
@@ -58,7 +79,7 @@ export default function EventBuilder() {
   };
 
   const handleSubmit = form.onSubmit((values) => {
-    const payload = { ...values, tiers, banner: bannerPreview, bannerFileName: bannerFile?.name };
+    const payload = { ...values, ticketTypes: tiers, banner: bannerPreview, bannerFileName: bannerFile?.name };
     console.log('Draft event payload', payload);
     notifications.show({
       title: 'Event draft saved',
@@ -84,7 +105,7 @@ export default function EventBuilder() {
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl">
         <Card padding="xl" className="glass-panel">
           <Title order={4} mb="lg">
-            Event details
+            Event essentials
           </Title>
           <Stack>
             <TextInput label="Event name" placeholder="Add a memorable title" required {...form.getInputProps('name')} />
@@ -93,6 +114,19 @@ export default function EventBuilder() {
               <TextInput label="Venue" placeholder="Friendship Park" required {...form.getInputProps('venue')} />
               <TextInput label="City" placeholder="Addis Ababa" required {...form.getInputProps('city')} />
             </SimpleGrid>
+            <MultiSelect
+              label="Categories"
+              placeholder="Concert, Workshop..."
+              data={categoryData}
+              searchable
+              creatable
+              getCreateLabel={(query) => `+ Add "${query}"`}
+              onCreate={(query) => {
+                setCategoryData((current) => [...current, query]);
+                return query;
+              }}
+              {...form.getInputProps('categories')}
+            />
             <TextInput
               label="Date & time"
               type="datetime-local"
@@ -121,13 +155,13 @@ export default function EventBuilder() {
         <Card padding="xl" className="glass-panel">
           <Group justify="space-between" mb="lg">
             <div>
-              <Title order={4}>Ticket tiers</Title>
+              <Title order={4}>Ticket types</Title>
               <Text size="sm" c="dimmed">
-                Offer Regular, VIP, VVIP, or custom packs with flexible pricing.
+                Offer Regular, VIP, VVIP, or custom packs plus perks.
               </Text>
             </div>
             <Button variant="light" radius="lg" onClick={addTier} leftSection={<IconPlus size={16} />}>
-              Add tier
+              Add ticket type
             </Button>
           </Group>
 
@@ -135,14 +169,21 @@ export default function EventBuilder() {
             {tiers.map((tier, index) => (
               <Card key={tier.id} padding="lg" radius="lg" className="glass-panel" style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <Group justify="space-between" align="flex-start" mb="sm">
-                  <Text fw={600}>{tier.label}</Text>
+                  <Group gap="sm">
+                    <Badge color="nightfall" variant="light">
+                      {tier.label || 'Unnamed'}
+                    </Badge>
+                    <Text size="sm" c="dimmed">
+                      Ticket type {index + 1}
+                    </Text>
+                  </Group>
                   <ActionIcon color="red" variant="subtle" onClick={() => removeTier(index)}>
                     <IconTrash size={16} />
                   </ActionIcon>
                 </Group>
                 <SimpleGrid cols={{ base: 1, sm: 3 }}>
                   <TextInput
-                    label="Label"
+                    label="Type name"
                     placeholder="VIP"
                     value={tier.label}
                     onChange={(event) => updateTier(index, 'label', event.currentTarget.value)}
@@ -161,6 +202,12 @@ export default function EventBuilder() {
                     onChange={(value) => updateTier(index, 'quantity', Number(value) || 0)}
                   />
                 </SimpleGrid>
+                <TagsInput
+                  label="Perks / benefits"
+                  placeholder="Fast lane, Backstage..."
+                  value={tier.perks ?? []}
+                  onChange={(values) => updateTierPerks(index, values)}
+                />
               </Card>
             ))}
           </Stack>
