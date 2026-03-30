@@ -37,7 +37,8 @@ export default function EventBuilder() {
   const [tiers, setTiers] = useState(presetTiers);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [categoryData, setCategoryData] = useState(baseCategories);
+  const [categoryData, setCategoryData] = useState<string[]>(baseCategories);
+  const [categorySearch, setCategorySearch] = useState('');
   const navigate = useNavigate();
 
   const addTier = () => {
@@ -62,6 +63,23 @@ export default function EventBuilder() {
 
   const removeTier = (index: number) => {
     setTiers((current) => current.filter((_, idx) => idx !== index));
+  };
+
+  const addCategoryFromSearch = () => {
+    const trimmed = categorySearch.trim();
+    if (!trimmed) return;
+
+    const existsInOptions = categoryData.some((category) => category.toLowerCase() === trimmed.toLowerCase());
+    if (!existsInOptions) {
+      setCategoryData((current) => [...current, trimmed]);
+    }
+
+    const existsInSelection = form.values.categories.some((category) => category.toLowerCase() === trimmed.toLowerCase());
+    if (!existsInSelection) {
+      form.setFieldValue('categories', [...form.values.categories, trimmed]);
+    }
+
+    setCategorySearch('');
   };
 
   const handleBannerUpload = (file: File | null) => {
@@ -119,11 +137,18 @@ export default function EventBuilder() {
               placeholder="Concert, Workshop..."
               data={categoryData}
               searchable
-              creatable
-              getCreateLabel={(query) => `+ Add "${query}"`}
-              onCreate={(query) => {
-                setCategoryData((current) => [...current, query]);
-                return query;
+              searchValue={categorySearch}
+              onSearchChange={setCategorySearch}
+              nothingFoundMessage={categorySearch ? `Press Enter to add "${categorySearch}"` : 'No matches'}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  const trimmed = categorySearch.trim();
+                  const exists = categoryData.some((category) => category.toLowerCase() === trimmed.toLowerCase());
+                  if (trimmed && !exists) {
+                    event.preventDefault();
+                    addCategoryFromSearch();
+                  }
+                }
               }}
               {...form.getInputProps('categories')}
             />
