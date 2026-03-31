@@ -7,19 +7,16 @@ import ColorSchemeToggle from '../common/ColorSchemeToggle';
 const navLinks = [
   {
     label: 'Overview',
-    description: 'Performance, revenue, and upcoming shows',
     path: '/organizer',
     icon: IconTicket,
   },
   {
     label: 'Create Event',
-    description: 'Launch a new listing with tiers',
     path: '/organizer/events/new',
     icon: IconCalendarPlus,
   },
   {
-    label: 'Scanner Access',
-    description: 'Manage gate staff devices',
+    label: 'Scanners',
     path: '/organizer#scanners',
     icon: IconUsersGroup,
   },
@@ -62,17 +59,22 @@ export default function OrganizerLayout() {
       <AppShell.Navbar p="lg" className="glass-nav">
         <ScrollArea h="100%">
           {navLinks.map((link) => {
-            const isActive = location.pathname === link.path;
+            const isScannersLink = link.path.includes('#scanners');
+            const isActive = isScannersLink
+              ? location.pathname === '/organizer' && location.hash === '#scanners'
+              : link.path === '/organizer'
+                ? location.pathname === '/organizer' && location.hash !== '#scanners'
+                : location.pathname === link.path;
+
             return (
               <NavLink
                 key={link.label}
                 label={link.label}
-                description={link.description}
                 active={isActive}
                 leftSection={<link.icon size={18} stroke={1.6} />}
                 onClick={() => {
                   if (link.path.includes('#')) {
-                    navigate('/organizer');
+                    navigate('/organizer#scanners');
                     requestAnimationFrame(() => {
                       document.getElementById('scanners-section')?.scrollIntoView({ behavior: 'smooth' });
                     });
@@ -82,7 +84,7 @@ export default function OrganizerLayout() {
                 }}
                 variant={isActive ? 'filled' : 'subtle'}
                 color="nightfall"
-                style={{ borderRadius: 12, marginBottom: 8 }}
+                className="sidebar-link"
               />
             );
           })}

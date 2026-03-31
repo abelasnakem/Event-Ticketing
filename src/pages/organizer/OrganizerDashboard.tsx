@@ -1,5 +1,5 @@
-import { ActionIcon, Badge, Button, Card, Divider, Group, Progress, SimpleGrid, Stack, Table, Text, ThemeIcon, Timeline, Title } from '@mantine/core';
-import { IconArrowRight, IconCalendarEvent, IconDeviceMobile, IconTicket, IconUsers } from '@tabler/icons-react';
+import { ActionIcon, Badge, Button, Card, Divider, Group, Progress, SimpleGrid, Stack, Table, Text, ThemeIcon, Title } from '@mantine/core';
+import { IconArrowRight, IconCalendarEvent, IconTicket, IconUsers } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { organizerEvents } from '../../data/organizerEvents';
@@ -20,10 +20,10 @@ const statsConfig = [
     color: 'teal',
   },
   {
-    label: 'Scanner Devices',
-    value: '12',
-    change: '3 pending',
-    icon: IconDeviceMobile,
+    label: 'Active Events',
+    value: '8',
+    change: '2 launching soon',
+    icon: IconCalendarEvent,
     color: 'violet',
   },
 ];
@@ -41,7 +41,7 @@ export default function OrganizerDashboard() {
       <Group justify="space-between" align="flex-start" mb="xl">
         <div>
           <Title order={2}>Organizer Command Center</Title>
-          <Text c="dimmed">Create, monitor, and operate every event from one glass board.</Text>
+          <Text c="dimmed">Quick view of sales, events, and payouts.</Text>
         </div>
         <Button size="md" radius="lg" leftSection={<IconCalendarEvent size={18} />} onClick={() => navigate('/organizer/events/new')}>
           Create event
@@ -71,17 +71,17 @@ export default function OrganizerDashboard() {
         ))}
       </SimpleGrid>
 
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl">
+      <SimpleGrid cols={{ base: 1, lg: 1 }} spacing="xl">
         <Card className="glass-panel" padding="xl">
           <Group justify="space-between" align="center" mb="lg">
             <div>
               <Title order={3}>Upcoming events</Title>
               <Text size="sm" c="dimmed">
-                Track fulfillment, ticket mixes, and operational readiness
+                Track sales progress and event readiness.
               </Text>
             </div>
             <Button variant="light" radius="lg" onClick={() => navigate('/organizer/events/new')}>
-              Duplicate a past event
+              New event
             </Button>
           </Group>
 
@@ -114,7 +114,7 @@ export default function OrganizerDashboard() {
                     <Table.Td>
                       <Progress value={progress} color={progress > 80 ? 'teal' : 'yellow'} radius="xl" size="lg" />
                       <Text size="xs" c="dimmed">
-                        {sold.toLocaleString()} / {total.toLocaleString()} seats
+                        {progress}% sold
                       </Text>
                     </Table.Td>
                     <Table.Td>
@@ -133,73 +133,15 @@ export default function OrganizerDashboard() {
             </Table.Tbody>
           </Table>
         </Card>
-
-        <Card className="glass-panel" padding="xl">
-          <Title order={3} mb="sm">
-            Scanner coverage
-          </Title>
-          <Text size="sm" c="dimmed" mb="lg">
-            Invite gate staff with a one-time code that syncs with the scanner app.
-          </Text>
-          <SimpleGrid cols={2} spacing="lg">
-            {organizerEvents.slice(0, 2).map((event) => (
-              <Card key={event.id} padding="lg" radius="lg" className="glass-panel" style={{ background: 'rgba(255,255,255,0.02)' }}>
-                <Text fw={600}>{event.name}</Text>
-                <Text size="xs" c="dimmed">
-                  {event.scanners.length} devices
-                </Text>
-                <Button
-                  mt="md"
-                  variant="light"
-                  radius="lg"
-                  onClick={() => navigate(`/organizer/events/${event.id}`)}
-                >
-                  Manage scanners
-                </Button>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </Card>
       </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl" mt="xl">
-        <Card className="glass-panel" padding="xl">
-          <Group justify="space-between" align="center" mb="lg">
-            <div>
-              <Title order={3}>Easy onboarding</Title>
-              <Text size="sm" c="dimmed">
-                Three quick steps to go live on Digis.
-              </Text>
-            </div>
-            <Button variant="light" radius="lg">
-              Talk to concierge
-            </Button>
-          </Group>
-          <Timeline active={1} bulletSize={28} lineWidth={2} color="nightfall">
-            <Timeline.Item title="Verify organization">
-              <Text size="sm" c="dimmed">
-                Upload license + primary contact within 5 minutes.
-              </Text>
-            </Timeline.Item>
-            <Timeline.Item title="Connect payout rails">
-              <Text size="sm" c="dimmed">
-                Add Telebirr, bank, or Chapa settlement accounts.
-              </Text>
-            </Timeline.Item>
-            <Timeline.Item title="Publish first experience">
-              <Text size="sm" c="dimmed">
-                Duplicate a past show or build a new template.
-              </Text>
-            </Timeline.Item>
-          </Timeline>
-        </Card>
-
-        <Card className="glass-panel" padding="xl">
+        <Card className="glass-panel" padding="xl" style={{ gridColumn: '1 / -1' }}>
           <Title order={3} mb="sm">
             Wallet & withdrawals
           </Title>
           <Text size="sm" c="dimmed" mb="lg">
-            Track available balance, settlement status, and initiate payouts.
+            Track your available balance and recent payout activity.
           </Text>
           <Stack gap="md">
             <Group justify="space-between">
@@ -215,7 +157,7 @@ export default function OrganizerDashboard() {
                 <Button variant="light" color="gray">
                   Connect bank
                 </Button>
-                <Button color="nightfall">Request payout</Button>
+                <Button color="nightfall">Withdraw funds</Button>
               </Group>
             </Group>
             <Divider label="Recent payouts" labelPosition="center" variant="dashed" color="rgba(255,255,255,0.2)" />

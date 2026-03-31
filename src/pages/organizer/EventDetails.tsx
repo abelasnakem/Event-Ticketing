@@ -1,27 +1,91 @@
-import { ActionIcon, Badge, Button, Card, Group, Modal, Paper, Progress, SegmentedControl, Select, SimpleGrid, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, ColorInput, Group, Modal, Paper, Progress, SegmentedControl, Select, SimpleGrid, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDeviceMobile, IconGift, IconLink, IconPlus, IconQrcode, IconShare3, IconUserPlus } from '@tabler/icons-react';
 import copy from 'copy-to-clipboard';
 import { QRCodeCanvas } from 'qrcode.react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { getOrganizerEvent } from '../../data/organizerEvents';
 import type { ScannerDevice } from '../../data/organizerEvents';
 import { toPng } from 'html-to-image';
+import { Vibrant } from 'node-vibrant/browser';
+import type { Palette } from '@vibrant/color';
+
+const fallbackBanner = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80';
+
+function darkenHex(hex: string, amount = 20) {
+  const normalized = hex.replace('#', '');
+  const num = parseInt(normalized.length === 3 ? normalized.split('').map((c) => c + c).join('') : normalized, 16);
+  const clamp = (value: number) => Math.max(0, Math.min(255, value));
+  const r = clamp(((num >> 16) & 0xff) - amount);
+  const g = clamp(((num >> 8) & 0xff) - amount);
+  const b = clamp((num & 0xff) - amount);
+  return `#${[r, g, b]
+    .map((val) => val.toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+type PaletteKey = 'vibrant' | 'darkVibrant' | 'muted' | 'brand' | 'custom';
 
 export default function EventDetails() {
   const { eventId = '' } = useParams();
   const event = getOrganizerEvent(eventId);
+  const brandColor = event?.brandColor ?? '#7c3aed';
   const [scannerForm, setScannerForm] = useState({ label: '', phone: '' });
   const [scanners, setScanners] = useState<ScannerDevice[]>(event?.scanners ?? []);
   const [inviteOpened, inviteHandlers] = useDisclosure(false);
   const [giftRecipient, setGiftRecipient] = useState({ phone: '', message: 'Enjoy the show!' });
   const [giftTier, setGiftTier] = useState(event?.tickets[0]?.label ?? 'Regular');
   const [shareOrientation, setShareOrientation] = useState<'landscape' | 'portrait'>('landscape');
+  const [selectedPalette, setSelectedPalette] = useState<PaletteKey>('vibrant');
+  const [customColor, setCustomColor] = useState(brandColor);
+  const [paletteSwatches, setPaletteSwatches] = useState<Record<Exclude<PaletteKey, 'custom'>, string>>({
+    vibrant: brandColor,
+    darkVibrant: darkenHex(brandColor, 30),
+    muted: darkenHex(brandColor, 15),
+    brand: brandColor,
+  });
+  const [shareGradient, setShareGradient] = useState({ start: '#05060f', end: '#0f172a', accent: '#ffffff' });
   const shareCardRef = useRef<HTMLDivElement | null>(null);
   const qrCanvasWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const source = event?.bannerUrl ?? fallbackBanner;
+
+    Vibrant.from(source)
+      .maxColorCount(8)
+      .getPalette()
+      .then((palette: Palette) => {
+        if (!active) return;
+        const vibrant = palette.Vibrant?.hex ?? brandColor;
+        const darkVibrant = palette.DarkVibrant?.hex ?? darkenHex(vibrant, 35);
+        const muted = palette.Muted?.hex ?? darkenHex(vibrant, 15);
+        const brand = brandColor;
+        setPaletteSwatches({ vibrant, darkVibrant, muted, brand });
+      })
+      .catch(() => {
+        setPaletteSwatches({
+          vibrant: brandColor,
+          darkVibrant: darkenHex(brandColor, 35),
+          muted: darkenHex(brandColor, 15),
+          brand: brandColor,
+        });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [event?.bannerUrl, brandColor]);
+
+  useEffect(() => {
+    const base = selectedPalette === 'custom' ? customColor : paletteSwatches[selectedPalette];
+    const start = base || '#0b1224';
+    const end = darkenHex(base || '#0b1224', 40);
+    setShareGradient({ start, end, accent: '#ffffff' });
+  }, [selectedPalette, paletteSwatches, customColor]);
 
   if (!event) {
     return (
@@ -145,13 +209,85 @@ export default function EventDetails() {
               data={[{ label: 'Landscape', value: 'landscape' }, { label: 'Portrait', value: 'portrait' }]}
             />
           </Group>
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm" mb="md">
+            <Select
+              label="Palette"
+              data={[
+                { label: 'Vibrant (auto)', value: 'vibrant' },
+                { label: 'Dark vibrant', value: 'darkVibrant' },
+                { label: 'Muted', value: 'muted' },
+                { label: 'Brand color', value: 'brand' },
+                { label: 'Custom', value: 'custom' },
+              ]}
+              value={selectedPalette}
+              onChange={(value) => value && setSelectedPalette(value as PaletteKey)}
+              searchable
+              nothingFoundMessage="Pick a palette"
+            />
+            <ColorInput
+              label="Custom accent"
+              value={customColor}
+              onChange={setCustomColor}
+              disabled={selectedPalette !== 'custom'}
+              format="hex"
+            />
+          </SimpleGrid>
+          <Group gap="sm" mb="md">
+            {(['vibrant', 'darkVibrant', 'muted', 'brand'] as const).map((key) => (
+              <Paper
+                key={key}
+                radius="md"
+                p="xs"
+                style={{
+                  background: paletteSwatches[key],
+                  color: '#fff',
+                  border: selectedPalette === key ? '1px solid rgba(255,255,255,0.45)' : '1px solid rgba(255,255,255,0.1)',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setSelectedPalette(key)}
+              >
+                <Text size="xs" fw={600} tt="uppercase">
+                  {key.replace('V', ' V')}
+                </Text>
+              </Paper>
+            ))}
+            <Paper
+              radius="md"
+              p="xs"
+              style={{
+                background: selectedPalette === 'custom' ? customColor : '#1f2435',
+                color: '#fff',
+                border: selectedPalette === 'custom' ? '1px solid rgba(255,255,255,0.45)' : '1px solid rgba(255,255,255,0.1)',
+                cursor: 'pointer',
+              }}
+              onClick={() => setSelectedPalette('custom')}
+            >
+              <Text size="xs" fw={600} tt="uppercase">
+                Custom
+              </Text>
+            </Paper>
+            <Paper
+              radius="md"
+              px="sm"
+              py={6}
+              style={{
+                background: `linear-gradient(135deg, ${shareGradient.start}, ${shareGradient.end})`,
+                color: '#fff',
+                border: '1px solid rgba(255,255,255,0.25)',
+              }}
+            >
+              <Text size="xs" fw={600}>
+                Gradient preview
+              </Text>
+            </Paper>
+          </Group>
           <Paper
             ref={shareCardRef}
             shadow="xl"
             radius="lg"
             p={shareOrientation === 'landscape' ? 'lg' : 'md'}
             style={{
-              background: '#05060f',
+              background: `linear-gradient(135deg, ${shareGradient.start}, ${shareGradient.end})`,
               color: '#fff',
               display: shareOrientation === 'landscape' ? 'flex' : 'block',
               gap: 16,
@@ -163,7 +299,7 @@ export default function EventDetails() {
               style={{
                 flex: 1,
                 borderRadius: 16,
-                backgroundImage: `url(${event.bannerUrl ?? 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80'})`,
+                backgroundImage: `url(${event.bannerUrl ?? fallbackBanner})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 minHeight: shareOrientation === 'landscape' ? 180 : 140,
@@ -242,16 +378,16 @@ export default function EventDetails() {
 
       <Card padding="xl" className="glass-panel">
         <Group justify="space-between" mb="lg">
-          <Title order={4}>Ticket tiers</Title>
+          <Title order={4}>Ticket types</Title>
           <Button variant="light" radius="lg" leftSection={<IconPlus size={16} />}>
-            Add tier
+            Add ticket type
           </Button>
         </Group>
         <Table verticalSpacing="md" highlightOnHover>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>#</Table.Th>
-              <Table.Th>Tier</Table.Th>
+              <Table.Th>Ticket type</Table.Th>
               <Table.Th>Price</Table.Th>
               <Table.Th>Inventory</Table.Th>
               <Table.Th>Fill</Table.Th>
@@ -285,7 +421,7 @@ export default function EventDetails() {
           <div>
             <Title order={4}>Scanner devices</Title>
             <Text size="sm" c="dimmed">
-              Add phone numbers — they receive a one-time invitation code.
+              Add team phones and share a one-time invite code.
             </Text>
           </div>
           <Badge color="nightfall" variant="light">
@@ -295,7 +431,7 @@ export default function EventDetails() {
 
         <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg" mb="lg">
           <TextInput
-            label="Device label"
+            label="Device name"
             placeholder="VIP Gate"
             value={scannerForm.label}
             onChange={(event) => setScannerForm((curr) => ({ ...curr, label: event.currentTarget.value }))}
@@ -307,7 +443,7 @@ export default function EventDetails() {
             onChange={(event) => setScannerForm((curr) => ({ ...curr, phone: event.currentTarget.value }))}
           />
           <Button mt={{ base: 'xl', md: 24 }} leftSection={<IconDeviceMobile size={18} />} onClick={handleScannerAdd}>
-            Invite device
+            Send device invite
           </Button>
         </SimpleGrid>
 
@@ -315,9 +451,9 @@ export default function EventDetails() {
           <Table.Thead>
             <Table.Tr>
               <Table.Th>#</Table.Th>
-              <Table.Th>Label</Table.Th>
+              <Table.Th>Device name</Table.Th>
               <Table.Th>Phone</Table.Th>
-              <Table.Th>Invitation code</Table.Th>
+              <Table.Th>Invite code</Table.Th>
               <Table.Th>Status</Table.Th>
             </Table.Tr>
           </Table.Thead>
@@ -347,13 +483,13 @@ export default function EventDetails() {
       <Card padding="xl" className="glass-panel">
         <Group justify="space-between" mb="lg">
           <div>
-            <Title order={4}>Send invitation / gift</Title>
+            <Title order={4}>Send a gifted ticket</Title>
             <Text size="sm" c="dimmed">
-              Surprise partners or VIPs with instant tickets via SMS link.
+              Surprise partners or VIPs with an instant ticket link.
             </Text>
           </div>
           <Button radius="lg" leftSection={<IconUserPlus size={18} />} onClick={inviteHandlers.open}>
-            Gift ticket
+            Start gift
           </Button>
         </Group>
       </Card>
@@ -367,7 +503,7 @@ export default function EventDetails() {
             onChange={(event) => setGiftRecipient((curr) => ({ ...curr, phone: event.currentTarget.value }))}
           />
           <Select
-            label="Ticket tier"
+            label="Ticket type"
             data={event.tickets.map((tier) => tier.label)}
             value={giftTier}
             onChange={(value) => value && setGiftTier(value)}
@@ -378,7 +514,7 @@ export default function EventDetails() {
             onChange={(event) => setGiftRecipient((curr) => ({ ...curr, message: event.currentTarget.value }))}
           />
           <Button leftSection={<IconGift size={18} />} onClick={handleGiftSend}>
-            Send invitation
+            Send gift ticket
           </Button>
         </Stack>
       </Modal>

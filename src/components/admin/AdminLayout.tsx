@@ -74,7 +74,7 @@ export default function AdminLayout() {
               onClick={() => navigate(link.path)}
               variant={location.pathname === link.path ? 'filled' : 'subtle'}
               color="nightfall"
-              style={{ borderRadius: 12, marginBottom: 6 }}
+              className="sidebar-link"
             />
           ))}
         </ScrollArea>
