@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Card, ColorInput, Group, Modal, Paper, Progress, SegmentedControl, Select, SimpleGrid, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Group, Modal, Paper, Progress, SegmentedControl, Select, SimpleGrid, Stack, Table, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDeviceMobile, IconGift, IconLink, IconPlus, IconQrcode, IconShare3, IconUserPlus } from '@tabler/icons-react';
 import copy from 'copy-to-clipboard';
@@ -27,7 +27,7 @@ function darkenHex(hex: string, amount = 20) {
     .join('')}`;
 }
 
-type PaletteKey = 'vibrant' | 'darkVibrant' | 'muted' | 'brand' | 'custom';
+type PaletteKey = 'vibrant' | 'darkVibrant' | 'muted' | 'brand';
 
 export default function EventDetails() {
   const { eventId = '' } = useParams();
@@ -40,8 +40,7 @@ export default function EventDetails() {
   const [giftTier, setGiftTier] = useState(event?.tickets[0]?.label ?? 'Regular');
   const [shareOrientation, setShareOrientation] = useState<'landscape' | 'portrait'>('landscape');
   const [selectedPalette, setSelectedPalette] = useState<PaletteKey>('vibrant');
-  const [customColor, setCustomColor] = useState(brandColor);
-  const [paletteSwatches, setPaletteSwatches] = useState<Record<Exclude<PaletteKey, 'custom'>, string>>({
+  const [paletteSwatches, setPaletteSwatches] = useState<Record<PaletteKey, string>>({
     vibrant: brandColor,
     darkVibrant: darkenHex(brandColor, 30),
     muted: darkenHex(brandColor, 15),
@@ -81,11 +80,11 @@ export default function EventDetails() {
   }, [event?.bannerUrl, brandColor]);
 
   useEffect(() => {
-    const base = selectedPalette === 'custom' ? customColor : paletteSwatches[selectedPalette];
+    const base = paletteSwatches[selectedPalette];
     const start = base || '#0b1224';
     const end = darkenHex(base || '#0b1224', 40);
     setShareGradient({ start, end, accent: '#ffffff' });
-  }, [selectedPalette, paletteSwatches, customColor]);
+  }, [selectedPalette, paletteSwatches]);
 
   if (!event) {
     return (
@@ -195,7 +194,7 @@ export default function EventDetails() {
       </Group>
 
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
-        <Card padding="xl" className="glass-panel">
+        <Card padding="xl" className="glass-panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Group justify="space-between" mb="lg" align="flex-start">
             <div>
               <Title order={4}>Social share card</Title>
@@ -209,121 +208,98 @@ export default function EventDetails() {
               data={[{ label: 'Landscape', value: 'landscape' }, { label: 'Portrait', value: 'portrait' }]}
             />
           </Group>
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm" mb="md">
-            <Select
-              label="Palette"
-              data={[
-                { label: 'Vibrant (auto)', value: 'vibrant' },
-                { label: 'Dark vibrant', value: 'darkVibrant' },
-                { label: 'Muted', value: 'muted' },
-                { label: 'Brand color', value: 'brand' },
-                { label: 'Custom', value: 'custom' },
-              ]}
-              value={selectedPalette}
-              onChange={(value) => value && setSelectedPalette(value as PaletteKey)}
-              searchable
-              nothingFoundMessage="Pick a palette"
-            />
-            <ColorInput
-              label="Custom accent"
-              value={customColor}
-              onChange={setCustomColor}
-              disabled={selectedPalette !== 'custom'}
-              format="hex"
-            />
-          </SimpleGrid>
-          <Group gap="sm" mb="md">
-            {(['vibrant', 'darkVibrant', 'muted', 'brand'] as const).map((key) => (
-              <Paper
-                key={key}
-                radius="md"
-                p="xs"
-                style={{
-                  background: paletteSwatches[key],
-                  color: '#fff',
-                  border: selectedPalette === key ? '1px solid rgba(255,255,255,0.45)' : '1px solid rgba(255,255,255,0.1)',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setSelectedPalette(key)}
-              >
-                <Text size="xs" fw={600} tt="uppercase">
-                  {key.replace('V', ' V')}
-                </Text>
-              </Paper>
-            ))}
+          <Text size="sm" fw={600} mb={8}>
+            Palette
+          </Text>
+          <Group gap="md" mb="md" wrap="wrap">
+            {(['vibrant', 'darkVibrant', 'muted', 'brand'] as const).map((key) => {
+              const isSelected = selectedPalette === key;
+              return (
+                <ActionIcon
+                  key={key}
+                  radius="xl"
+                  size={56}
+                  variant="transparent"
+                  aria-label={`Use ${key} palette`}
+                  title={key === 'darkVibrant' ? 'Dark vibrant' : key.charAt(0).toUpperCase() + key.slice(1)}
+                  onClick={() => setSelectedPalette(key)}
+                  style={{
+                    background: paletteSwatches[key],
+                    border: isSelected ? '4px solid #fff' : '2px solid rgba(255,255,255,0.12)',
+                    boxShadow: isSelected
+                      ? '0 0 0 2px rgba(15,23,42,0.9), 0 8px 20px rgba(0,0,0,0.35)'
+                      : '0 0 0 1px rgba(2,6,23,0.8), inset 0 -10px 16px rgba(0,0,0,0.38)',
+                    opacity: isSelected ? 1 : 0.58,
+                    filter: isSelected ? 'none' : 'saturate(0.72) brightness(0.86)',
+                    transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                    transition: 'all 180ms ease',
+                  }}
+                />
+              );
+            })}
+          </Group>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBlock: 8 }}>
             <Paper
-              radius="md"
-              p="xs"
-              style={{
-                background: selectedPalette === 'custom' ? customColor : '#1f2435',
-                color: '#fff',
-                border: selectedPalette === 'custom' ? '1px solid rgba(255,255,255,0.45)' : '1px solid rgba(255,255,255,0.1)',
-                cursor: 'pointer',
-              }}
-              onClick={() => setSelectedPalette('custom')}
-            >
-              <Text size="xs" fw={600} tt="uppercase">
-                Custom
-              </Text>
-            </Paper>
-            <Paper
-              radius="md"
-              px="sm"
-              py={6}
+              ref={shareCardRef}
+              shadow="xl"
+              radius="lg"
+              p={shareOrientation === 'landscape' ? 'lg' : 'md'}
               style={{
                 background: `linear-gradient(135deg, ${shareGradient.start}, ${shareGradient.end})`,
                 color: '#fff',
-                border: '1px solid rgba(255,255,255,0.25)',
+              display: shareOrientation === 'landscape' ? 'flex' : 'block',
+                gap: 16,
+              maxWidth: shareOrientation === 'landscape' ? 540 : 320,
+                marginInline: 'auto',
               }}
             >
-              <Text size="xs" fw={600}>
-                Gradient preview
-              </Text>
-            </Paper>
-          </Group>
-          <Paper
-            ref={shareCardRef}
-            shadow="xl"
-            radius="lg"
-            p={shareOrientation === 'landscape' ? 'lg' : 'md'}
-            style={{
-              background: `linear-gradient(135deg, ${shareGradient.start}, ${shareGradient.end})`,
-              color: '#fff',
-              display: shareOrientation === 'landscape' ? 'flex' : 'block',
-              gap: 16,
-              maxWidth: shareOrientation === 'landscape' ? 540 : 320,
-              marginInline: 'auto',
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-                borderRadius: 16,
-                backgroundImage: `url(${event.bannerUrl ?? fallbackBanner})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                minHeight: shareOrientation === 'landscape' ? 180 : 140,
-              }}
-            />
-            <Stack gap="sm" style={{ flex: shareOrientation === 'landscape' ? 0.8 : undefined }}>
-              <Text size="sm" c="dimmed">
-                Digis presents
-              </Text>
-              <Text fw={700} fz="lg" style={{ lineHeight: 1.2 }}>
-                {event.name}
-              </Text>
-              <Text size="sm" c="dimmed">
-                {dayjs(event.datetime).format('MMM D, YYYY · h:mm A')}
-              </Text>
-              <Text size="sm">{event.venue}, {event.city}</Text>
-              <div style={{ alignSelf: shareOrientation === 'landscape' ? 'flex-start' : 'center' }}>
-                <QRCodeCanvas value={eventLink} size={shareOrientation === 'landscape' ? 120 : 150} bgColor="transparent" fgColor="#fff" />
-                <Text size="xs" c="dimmed" ta="center">
-                  Scan to claim
+              <div
+                style={{
+                  flex: 1,
+                  borderRadius: 16,
+                  backgroundImage: `url(${event.bannerUrl ?? fallbackBanner})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  minHeight: shareOrientation === 'landscape' ? 180 : 170,
+                }}
+              />
+              <Stack
+                gap="sm"
+                style={{
+                  flex: shareOrientation === 'landscape' ? 0.8 : undefined,
+                  alignItems: shareOrientation === 'landscape' ? 'flex-start' : 'center',
+                  textAlign: shareOrientation === 'landscape' ? 'left' : 'center',
+                }}
+              >
+                <Text size="sm" c="dimmed">
+                  Digis presents
                 </Text>
-              </div>
-            </Stack>
-          </Paper>
+                <Text fw={700} fz="lg" style={{ lineHeight: 1.2 }}>
+                  {event.name}
+                </Text>
+                <Text size="sm" c="dimmed">
+                  {dayjs(event.datetime).format('MMM D, YYYY · h:mm A')}
+                </Text>
+                <Text size="sm">{event.venue}, {event.city}</Text>
+                <div style={{ alignSelf: shareOrientation === 'landscape' ? 'flex-start' : 'center' }}>
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: 12,
+                      padding: 8,
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.28)',
+                      width: 'fit-content',
+                    }}
+                  >
+                    <QRCodeCanvas value={eventLink} size={shareOrientation === 'landscape' ? 120 : 150} bgColor="#ffffff" fgColor="#0f172a" />
+                  </div>
+                  <Text size="xs" c="dimmed" ta="center">
+                    Scan to claim
+                  </Text>
+                </div>
+              </Stack>
+            </Paper>
+          </div>
           <Group mt="lg" justify="flex-end">
             <Button variant="light" leftSection={<IconLink size={16} />} onClick={handleCopyLink}>
               Copy link
@@ -334,7 +310,7 @@ export default function EventDetails() {
           </Group>
         </Card>
 
-        <Card padding="xl" className="glass-panel">
+        <Card padding="xl" className="glass-panel" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Group justify="space-between" mb="lg" align="flex-start">
             <div>
               <Title order={4}>Smart link & QR</Title>
@@ -362,11 +338,24 @@ export default function EventDetails() {
             </Group>
           </Group>
           <TextInput value={eventLink} readOnly label="Public link" radius="md" mb="md" />
-          <div ref={qrCanvasWrapperRef} style={{ textAlign: 'center' }}>
-            <QRCodeCanvas value={eventLink} size={200} bgColor="transparent" fgColor="#f5f6fa" />
-            <Text size="sm" c="dimmed" mt="md">
-              Gate staff can scan offline and sync later.
-            </Text>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div ref={qrCanvasWrapperRef} style={{ textAlign: 'center' }}>
+              <div
+                style={{
+                  background: '#ffffff',
+                  borderRadius: 14,
+                  padding: 10,
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.22)',
+                  width: 'fit-content',
+                  marginInline: 'auto',
+                }}
+              >
+                <QRCodeCanvas value={eventLink} size={200} bgColor="#ffffff" fgColor="#0f172a" />
+              </div>
+              <Text size="sm" c="dimmed" mt="md">
+                Gate staff can scan offline and sync later.
+              </Text>
+            </div>
           </div>
           <Group mt="lg" justify="center">
             <Button variant="light" onClick={handleDownloadQr} leftSection={<IconQrcode size={16} />}>
@@ -389,8 +378,7 @@ export default function EventDetails() {
               <Table.Th>#</Table.Th>
               <Table.Th>Ticket type</Table.Th>
               <Table.Th>Price</Table.Th>
-              <Table.Th>Inventory</Table.Th>
-              <Table.Th>Fill</Table.Th>
+              <Table.Th>Fill & inventory</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -400,14 +388,24 @@ export default function EventDetails() {
                 <Table.Tr key={tier.id}>
                   <Table.Td>{index + 1}</Table.Td>
                   <Table.Td>
-                    <Text fw={600}>{tier.label}</Text>
+                    <Stack gap={4}>
+                      <Text fw={600}>{tier.label}</Text>
+                      <Text size="xs" c="dimmed">
+                        {(tier.perks?.length ? tier.perks : ['No benefits configured yet']).join(' • ')}
+                      </Text>
+                    </Stack>
                   </Table.Td>
                   <Table.Td>{tier.price.toLocaleString()} ETB</Table.Td>
                   <Table.Td>
-                    {tier.sold.toLocaleString()} / {tier.total.toLocaleString()}
-                  </Table.Td>
-                  <Table.Td>
-                    <Progress value={progress} color={progress > 80 ? 'teal' : 'yellow'} radius="xl" />
+                    <Stack gap={4}>
+                      <Text size="sm" fw={600}>
+                        {progress}% filled
+                      </Text>
+                      <Progress value={progress} color={progress > 80 ? 'teal' : 'yellow'} radius="xl" />
+                      <Text size="xs" c="dimmed">
+                        {tier.sold.toLocaleString()} / {tier.total.toLocaleString()} sold
+                      </Text>
+                    </Stack>
                   </Table.Td>
                 </Table.Tr>
               );

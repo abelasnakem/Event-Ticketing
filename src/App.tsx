@@ -9,6 +9,24 @@ import OrganizerLayout from './components/organizer/OrganizerLayout';
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard';
 import EventBuilder from './pages/organizer/EventBuilder';
 import EventDetails from './pages/organizer/EventDetails';
+import OrganizerOnboarding from './pages/organizer/OrganizerOnboarding';
+import { getOrganizerAccount } from './data/organizerAccount';
+
+function OrganizerAccessRoute({ children }: { children: React.ReactNode }) {
+  const hasAccount = Boolean(getOrganizerAccount());
+  if (!hasAccount) {
+    return <Navigate to="/organizer/onboarding" replace />;
+  }
+  return <>{children}</>;
+}
+
+function OnboardingOnlyRoute({ children }: { children: React.ReactNode }) {
+  const hasAccount = Boolean(getOrganizerAccount());
+  if (hasAccount) {
+    return <Navigate to="/organizer" replace />;
+  }
+  return <>{children}</>;
+}
 
 function App() {
   return (
@@ -21,7 +39,22 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="events" element={<EventsManagement />} />
           </Route>
-          <Route path="/organizer" element={<OrganizerLayout />}>
+          <Route
+            path="/organizer/onboarding"
+            element={
+              <OnboardingOnlyRoute>
+                <OrganizerOnboarding />
+              </OnboardingOnlyRoute>
+            }
+          />
+          <Route
+            path="/organizer"
+            element={
+              <OrganizerAccessRoute>
+                <OrganizerLayout />
+              </OrganizerAccessRoute>
+            }
+          >
             <Route index element={<OrganizerDashboard />} />
             <Route path="events/new" element={<EventBuilder />} />
             <Route path="events/:eventId" element={<EventDetails />} />

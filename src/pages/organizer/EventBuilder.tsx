@@ -6,9 +6,9 @@ import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 
 const presetTicketTypes = [
-  { id: 'regular', label: 'Regular', price: 600, quantity: 1000 },
-  { id: 'vip', label: 'VIP', price: 2200, quantity: 300 },
-  { id: 'vvip', label: 'VVIP', price: 4200, quantity: 80 },
+  { id: 'regular', label: 'Regular', price: 600, quantity: 1000, benefits: 'General entry' },
+  { id: 'vip', label: 'VIP', price: 2200, quantity: 300, benefits: 'Priority entry, VIP zone access' },
+  { id: 'vvip', label: 'VVIP', price: 4200, quantity: 80, benefits: 'Backstage lounge, front-row seating' },
 ];
 
 export default function EventBuilder() {
@@ -28,10 +28,10 @@ export default function EventBuilder() {
   const navigate = useNavigate();
 
   const addTicketType = () => {
-    setTicketTypes((prev) => [...prev, { id: `ticket-type-${Date.now()}`, label: 'Custom', price: 0, quantity: 50 }]);
+    setTicketTypes((prev) => [...prev, { id: `ticket-type-${Date.now()}`, label: 'Custom', price: 0, quantity: 50, benefits: '' }]);
   };
 
-  const updateTicketType = (index: number, field: 'label' | 'price' | 'quantity', value: string | number) => {
+  const updateTicketType = (index: number, field: 'label' | 'price' | 'quantity' | 'benefits', value: string | number) => {
     setTicketTypes((current) => {
       const draft = [...current];
       draft[index] = { ...draft[index], [field]: value };
@@ -161,6 +161,13 @@ export default function EventBuilder() {
                     onChange={(value) => updateTicketType(index, 'quantity', Number(value) || 0)}
                   />
                 </SimpleGrid>
+                <TextInput
+                  mt="sm"
+                  label="Benefits"
+                  placeholder="Priority entry, drink voucher, lounge access"
+                  value={ticketType.benefits}
+                  onChange={(event) => updateTicketType(index, 'benefits', event.currentTarget.value)}
+                />
               </Card>
             ))}
           </Stack>

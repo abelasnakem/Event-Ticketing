@@ -6,6 +6,7 @@ export type TicketTier = {
   price: number;
   total: number;
   sold: number;
+  perks?: string[];
 };
 
 export type ScannerDevice = {
@@ -42,9 +43,30 @@ export const organizerEvents: OrganizerEvent[] = [
     bannerUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=900&q=80',
     brandColor: '#ff6b6b',
     tickets: [
-      { id: 'regular', label: 'Regular', price: 700, total: 12000, sold: 9230 },
-      { id: 'vip', label: 'VIP', price: 2200, total: 3000, sold: 1980 },
-      { id: 'vvip', label: 'VVIP', price: 4500, total: 400, sold: 260 },
+      {
+        id: 'regular',
+        label: 'Regular',
+        price: 700,
+        total: 12000,
+        sold: 9230,
+        perks: ['General arena access', 'Standard entry lane'],
+      },
+      {
+        id: 'vip',
+        label: 'VIP',
+        price: 2200,
+        total: 3000,
+        sold: 1980,
+        perks: ['Priority check-in', 'VIP seating zone', 'Complimentary soft drink'],
+      },
+      {
+        id: 'vvip',
+        label: 'VVIP',
+        price: 4500,
+        total: 400,
+        sold: 260,
+        perks: ['Front-row seating', 'Backstage lounge access', 'Meet-and-greet pass'],
+      },
     ],
     scanners: [
       { id: 'scan-1', label: 'North Gate', phone: '+251911223344', invitationCode: 'GIZE94', status: 'active' },
@@ -62,8 +84,22 @@ export const organizerEvents: OrganizerEvent[] = [
     bannerUrl: 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=900&q=80',
     brandColor: '#4dabf7',
     tickets: [
-      { id: 'regular', label: 'General', price: 950, total: 1500, sold: 400 },
-      { id: 'vip', label: 'Founder Pass', price: 3200, total: 200, sold: 40 },
+      {
+        id: 'regular',
+        label: 'General',
+        price: 950,
+        total: 1500,
+        sold: 400,
+        perks: ['Conference access', 'Startup expo floor access'],
+      },
+      {
+        id: 'vip',
+        label: 'Founder Pass',
+        price: 3200,
+        total: 200,
+        sold: 40,
+        perks: ['Speaker lounge access', 'Priority seating', 'Networking dinner invite'],
+      },
     ],
     scanners: [
       { id: 'scan-3', label: 'Hall A', phone: '+251910000011', invitationCode: 'TECH21', status: 'invited' },
