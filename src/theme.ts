@@ -2,16 +2,16 @@ import { createTheme } from '@mantine/core';
 import type { MantineColorsTuple } from '@mantine/core';
 
 const nightfall: MantineColorsTuple = [
-  '#edf2ff',
-  '#d2dafe',
-  '#a4b5fb',
-  '#768ffa',
-  '#536ff7',
-  '#3d58f5',
-  '#314ef4',
-  '#2742da',
-  '#1f3ac2',
-  '#122aa2',
+  '#f9ffe0',
+  '#f5ffc2',
+  '#f0ff8a',
+  '#ebff54',
+  '#eaff00',
+  '#d3e600',
+  '#b7c900',
+  '#9bac00',
+  '#7a8900',
+  '#5e6a00',
 ];
 
 export const appTheme = createTheme({

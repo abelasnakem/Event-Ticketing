@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Card, Divider, Group, Progress, SimpleGrid, Stack, Table, Text, ThemeIcon, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Divider, Group, Image, Progress, SimpleGrid, Stack, Table, Text, ThemeIcon, Title } from '@mantine/core';
 import { IconArrowRight, IconCalendarEvent, IconTicket, IconUsers } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +35,7 @@ const payoutHistory = [
 
 export default function OrganizerDashboard() {
   const navigate = useNavigate();
+  const formatNumber = new Intl.NumberFormat('en-US');
 
   return (
     <div>
@@ -89,9 +90,10 @@ export default function OrganizerDashboard() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>#</Table.Th>
+                <Table.Th>Banner</Table.Th>
                 <Table.Th>Event</Table.Th>
                 <Table.Th>Date</Table.Th>
-                <Table.Th>Fill rate</Table.Th>
+                <Table.Th>Tickets</Table.Th>
                 <Table.Th>Actions</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -105,6 +107,16 @@ export default function OrganizerDashboard() {
                   <Table.Tr key={event.id}>
                     <Table.Td>{index + 1}</Table.Td>
                     <Table.Td>
+                      <Image
+                        src={event.bannerUrl ?? 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=200&q=60'}
+                        alt={event.name}
+                        radius="md"
+                        w={64}
+                        h={44}
+                        fit="cover"
+                      />
+                    </Table.Td>
+                    <Table.Td>
                       <Text fw={600}>{event.name}</Text>
                       <Text size="xs" c="dimmed">
                         {event.venue} · {event.city}
@@ -112,10 +124,25 @@ export default function OrganizerDashboard() {
                     </Table.Td>
                     <Table.Td>{dayjs(event.datetime).format('MMM D, h:mm A')}</Table.Td>
                     <Table.Td>
-                      <Progress value={progress} color={progress > 80 ? 'teal' : 'yellow'} radius="xl" size="lg" />
-                      <Text size="xs" c="dimmed">
-                        {progress}% sold
-                      </Text>
+                      <Stack gap={6}>
+                        <Progress
+                          value={progress}
+                          color={progress > 80 ? 'teal' : 'yellow'}
+                          radius="xl"
+                          size="md"
+                          styles={{
+                            root: { backgroundColor: 'rgba(255, 255, 255, 0.12)' },
+                          }}
+                        />
+                        <Group justify="space-between" gap="xs">
+                          <Text size="xs" c="dimmed">
+                            {formatNumber.format(sold)}/{formatNumber.format(total)}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {progress}%
+                          </Text>
+                        </Group>
+                      </Stack>
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs">

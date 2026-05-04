@@ -46,3 +46,11 @@ export function saveOrganizerAccount(account: OrganizerAccount) {
 
   window.localStorage.setItem(ORGANIZER_ACCOUNT_STORAGE_KEY, JSON.stringify(account));
 }
+
+export function clearOrganizerAccount() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.localStorage.removeItem(ORGANIZER_ACCOUNT_STORAGE_KEY);
+}

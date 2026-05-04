@@ -5,11 +5,14 @@ import { appTheme } from './theme';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import EventsManagement from './pages/admin/EventsManagement';
+import Organizers from './pages/admin/Organizers';
+import AdminSettings from './pages/admin/AdminSettings';
 import OrganizerLayout from './components/organizer/OrganizerLayout';
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard';
 import EventBuilder from './pages/organizer/EventBuilder';
 import EventDetails from './pages/organizer/EventDetails';
 import OrganizerOnboarding from './pages/organizer/OrganizerOnboarding';
+import Login from './pages/auth/Login';
 import { getOrganizerAccount } from './data/organizerAccount';
 
 function OrganizerAccessRoute({ children }: { children: React.ReactNode }) {
@@ -38,6 +41,8 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="events" element={<EventsManagement />} />
+            <Route path="organizers" element={<Organizers />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           <Route
             path="/organizer/onboarding"
@@ -47,6 +52,7 @@ function App() {
               </OnboardingOnlyRoute>
             }
           />
+          <Route path="/login" element={<Login />} />
           <Route
             path="/organizer"
             element={

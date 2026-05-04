@@ -81,7 +81,7 @@ export const organizerEvents: OrganizerEvent[] = [
     datetime: dayjs().add(32, 'day').toISOString(),
     status: 'Draft',
     link: 'https://digis.events/e/evt-tech-5123',
-    bannerUrl: 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=900&q=80',
+    bannerUrl: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?auto=format&fit=crop&w=300&q=60',
     brandColor: '#4dabf7',
     tickets: [
       {

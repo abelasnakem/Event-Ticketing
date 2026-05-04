@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconDeviceMobile, IconGift, IconLink, IconPlus, IconQrcode, IconShare3, IconUserPlus } from '@tabler/icons-react';
 import copy from 'copy-to-clipboard';
 import { QRCodeCanvas } from 'qrcode.react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
@@ -46,7 +46,12 @@ export default function EventDetails() {
     muted: darkenHex(brandColor, 15),
     brand: brandColor,
   });
-  const [shareGradient, setShareGradient] = useState({ start: '#05060f', end: '#0f172a', accent: '#ffffff' });
+  const shareGradient = useMemo(() => {
+    const base = paletteSwatches[selectedPalette];
+    const start = base || '#0b1224';
+    const end = darkenHex(base || '#0b1224', 40);
+    return { start, end, accent: '#ffffff' };
+  }, [paletteSwatches, selectedPalette]);
   const shareCardRef = useRef<HTMLDivElement | null>(null);
   const qrCanvasWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -79,13 +84,6 @@ export default function EventDetails() {
     };
   }, [event?.bannerUrl, brandColor]);
 
-  useEffect(() => {
-    const base = paletteSwatches[selectedPalette];
-    const start = base || '#0b1224';
-    const end = darkenHex(base || '#0b1224', 40);
-    setShareGradient({ start, end, accent: '#ffffff' });
-  }, [selectedPalette, paletteSwatches]);
-
   if (!event) {
     return (
       <Card padding="xl" className="glass-panel">
@@ -112,7 +110,7 @@ export default function EventDetails() {
       link.href = dataUrl;
       link.download = `${event.id}-${shareOrientation}-card.png`;
       link.click();
-    } catch (error) {
+    } catch {
       notifications.show({ title: 'Unable to export card', message: 'Retry or try another browser.', color: 'red' });
     }
   };

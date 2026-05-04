@@ -1,12 +1,48 @@
-import { ActionIcon, Badge, Button, Card, Group, Menu, Table, Text, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Badge, Button, Card, Group, Image, Menu, Progress, Stack, Table, Text, TextInput, Title } from '@mantine/core';
 import { IconDotsVertical, IconEye, IconFilter, IconSearch, IconShield, IconTrash } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 const events = [
-  { id: 'EVT-1021', name: 'Gize Concert', organizer: 'Gize Entertainment', sold: 12450, total: 15000, revenue: '6.2M', status: 'Published' },
-  { id: 'EVT-1452', name: 'Tech Innovate ETH', organizer: 'Startup Grind Addis', sold: 400, total: 500, revenue: '1.2M', status: 'Published' },
-  { id: 'EVT-1670', name: 'Zoma Art Gala', organizer: 'Zoma Museum', sold: 120, total: 200, revenue: '240K', status: 'Draft' },
-  { id: 'EVT-1540', name: 'Underground DJ Night', organizer: 'Addis Beats', sold: 450, total: 500, revenue: '450K', status: 'Suspended' },
+  {
+    id: 'EVT-1021',
+    name: 'Gize Concert',
+    organizer: 'Gize Entertainment',
+    sold: 12450,
+    total: 15000,
+    revenue: '6.2M',
+    status: 'Published',
+    bannerUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=300&q=60',
+  },
+  {
+    id: 'EVT-1452',
+    name: 'Tech Innovate ETH',
+    organizer: 'Startup Grind Addis',
+    sold: 400,
+    total: 500,
+    revenue: '1.2M',
+    status: 'Published',
+    bannerUrl: 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=300&q=60',
+  },
+  {
+    id: 'EVT-1670',
+    name: 'Zoma Art Gala',
+    organizer: 'Zoma Museum',
+    sold: 120,
+    total: 200,
+    revenue: '240K',
+    status: 'Draft',
+    bannerUrl: 'https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?auto=format&fit=crop&w=300&q=60',
+  },
+  {
+    id: 'EVT-1540',
+    name: 'Underground DJ Night',
+    organizer: 'Addis Beats',
+    sold: 450,
+    total: 500,
+    revenue: '450K',
+    status: 'Suspended',
+    bannerUrl: 'https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=300&q=60',
+  },
 ];
 
 const statusColor = (status: string) => {
@@ -24,13 +60,11 @@ const statusColor = (status: string) => {
 
 export default function EventsManagement() {
   const [query, setQuery] = useState('');
+  const formatNumber = new Intl.NumberFormat('en-US');
 
-  const filtered = useMemo(
-    () =>
-      events.filter((event) =>
-        `${event.id} ${event.name} ${event.organizer}`.toLowerCase().includes(query.toLowerCase()),
-      ),
-    [query],
+  const normalizedQuery = query.trim().toLowerCase();
+  const filtered = events.filter((event) =>
+    `${event.id} ${event.name} ${event.organizer}`.toLowerCase().includes(normalizedQuery),
   );
 
   return (
@@ -66,6 +100,7 @@ export default function EventsManagement() {
           <Table.Thead>
             <Table.Tr>
               <Table.Th>#</Table.Th>
+              <Table.Th>Banner</Table.Th>
               <Table.Th>Event</Table.Th>
               <Table.Th>Organizer</Table.Th>
               <Table.Th>Tickets</Table.Th>
@@ -79,6 +114,9 @@ export default function EventsManagement() {
               <Table.Tr key={event.id}>
                 <Table.Td>{index + 1}</Table.Td>
                 <Table.Td>
+                  <Image src={event.bannerUrl} alt={event.name} radius="md" w={64} h={44} fit="cover" />
+                </Table.Td>
+                <Table.Td>
                   <Text fw={600}>{event.name}</Text>
                   <Text size="xs" ff="monospace" c="dimmed">
                     {event.id}
@@ -86,10 +124,23 @@ export default function EventsManagement() {
                 </Table.Td>
                 <Table.Td>{event.organizer}</Table.Td>
                 <Table.Td>
-                  {event.sold.toLocaleString()} / {event.total.toLocaleString()}
-                  <Text size="xs" c="dimmed">
-                    {Math.round((event.sold / event.total) * 100)}% capacity
-                  </Text>
+                  <Stack gap={6}>
+                    <Progress
+                      value={Math.round((event.sold / event.total) * 100)}
+                      color={event.sold / event.total > 0.8 ? 'teal' : 'yellow'}
+                      radius="xl"
+                      size="md"
+                      styles={{ root: { backgroundColor: 'rgba(255, 255, 255, 0.12)' } }}
+                    />
+                    <Group justify="space-between" gap="xs">
+                      <Text size="xs" c="dimmed">
+                        {formatNumber.format(event.sold)}/{formatNumber.format(event.total)}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {Math.round((event.sold / event.total) * 100)}%
+                      </Text>
+                    </Group>
+                  </Stack>
                 </Table.Td>
                 <Table.Td>{event.revenue} ETB</Table.Td>
                 <Table.Td>
