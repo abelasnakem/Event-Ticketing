@@ -3,7 +3,7 @@ import { IconAlertTriangle, IconArrowUpRight, IconCash, IconTicket, IconUser } f
 
 const kpis = [
   { title: 'Tickets Sold', value: '45,231', diff: '+32%', icon: IconTicket, color: 'nightfall' },
-  { title: 'Platform Revenue', value: '2.4M ETB', diff: '+18%', icon: IconCash, color: 'teal' },
+  { title: 'Platform Revenue', value: '2.4M ETB', diff: '+18%', icon: IconCash, color: 'nightfall' },
   { title: 'Active Organizers', value: '142', diff: '+6%', icon: IconUser, color: 'violet' },
 ];
 
@@ -37,7 +37,7 @@ export default function Dashboard() {
                 </ActionIcon>
               </Group>
               <Group gap={6} mt="lg">
-                <Badge color="teal" variant="light">
+                <Badge color="nightfall" variant="light">
                   <IconArrowUpRight size={14} /> {kpi.diff}
                 </Badge>
                 <Text size="sm" c="dimmed">
@@ -107,7 +107,7 @@ export default function Dashboard() {
             thickness={18}
             roundCaps
             sections={[
-              { value: 88, color: 'teal' },
+              { value: 88, color: 'nightfall' },
               { value: 8, color: 'yellow' },
               { value: 4, color: 'red' },
             ]}
@@ -128,7 +128,7 @@ export default function Dashboard() {
             <Table.Tr>
               <Table.Td>Valid entries</Table.Td>
               <Table.Td align="right">
-                <Badge color="teal" radius="sm">
+                <Badge color="nightfall" radius="sm">
                   18,420
                 </Badge>
               </Table.Td>

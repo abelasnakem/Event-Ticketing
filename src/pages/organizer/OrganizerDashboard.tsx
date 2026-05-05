@@ -17,7 +17,7 @@ const statsConfig = [
     value: '18.7M',
     change: '+11%',
     icon: IconUsers,
-    color: 'teal',
+    color: 'nightfall',
   },
   {
     label: 'Active Events',
@@ -60,7 +60,7 @@ export default function OrganizerDashboard() {
                 <Text fw={700} fz="xl" mt="xs">
                   {stat.value}
                 </Text>
-                <Text size="sm" c="teal" fw={600}>
+                <Text size="sm" c="nightfall" fw={600}>
                   {stat.change}
                 </Text>
               </div>
@@ -127,7 +127,7 @@ export default function OrganizerDashboard() {
                       <Stack gap={6}>
                         <Progress
                           value={progress}
-                          color={progress > 80 ? 'teal' : 'yellow'}
+                          color={progress > 80 ? 'nightfall' : 'yellow'}
                           radius="xl"
                           size="md"
                           styles={{
@@ -146,7 +146,7 @@ export default function OrganizerDashboard() {
                     </Table.Td>
                     <Table.Td>
                       <Group gap="xs">
-                        <Badge color={event.status === 'Published' ? 'teal' : event.status === 'Live' ? 'blue' : 'gray'} radius="sm">
+                        <Badge color={event.status === 'Published' ? 'nightfall' : event.status === 'Live' ? 'blue' : 'gray'} radius="sm">
                           {event.status}
                         </Badge>
                         <ActionIcon variant="subtle" color="nightfall" onClick={() => navigate(`/organizer/events/${event.id}`)}>
@@ -207,7 +207,7 @@ export default function OrganizerDashboard() {
                     </Table.Td>
                     <Table.Td>{payout.amount}</Table.Td>
                     <Table.Td>
-                      <Badge color={payout.status === 'Completed' ? 'teal' : 'yellow'}>{payout.status}</Badge>
+                      <Badge color={payout.status === 'Completed' ? 'nightfall' : 'yellow'}>{payout.status}</Badge>
                     </Table.Td>
                     <Table.Td>{payout.date}</Table.Td>
                   </Table.Tr>

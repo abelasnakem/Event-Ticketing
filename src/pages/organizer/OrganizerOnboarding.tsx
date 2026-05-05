@@ -303,7 +303,7 @@ export default function OrganizerOnboarding() {
     notifications.show({
       title: 'All set',
       message: 'Your organizer workspace is ready.',
-      color: 'teal',
+      color: 'nightfall',
       icon: <IconCheck size={18} />,
     });
 

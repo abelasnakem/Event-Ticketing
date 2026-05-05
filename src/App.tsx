@@ -9,6 +9,7 @@ import Organizers from './pages/admin/Organizers';
 import AdminSettings from './pages/admin/AdminSettings';
 import OrganizerLayout from './components/organizer/OrganizerLayout';
 import OrganizerDashboard from './pages/organizer/OrganizerDashboard';
+import OrganizerEvents from './pages/organizer/OrganizerEvents';
 import EventBuilder from './pages/organizer/EventBuilder';
 import EventDetails from './pages/organizer/EventDetails';
 import OrganizerOnboarding from './pages/organizer/OrganizerOnboarding';
@@ -62,6 +63,7 @@ function App() {
             }
           >
             <Route index element={<OrganizerDashboard />} />
+            <Route path="events" element={<OrganizerEvents />} />
             <Route path="events/new" element={<EventBuilder />} />
             <Route path="events/:eventId" element={<EventDetails />} />
           </Route>

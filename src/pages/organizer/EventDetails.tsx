@@ -99,7 +99,7 @@ export default function EventDetails() {
 
   const handleCopyLink = () => {
     copy(eventLink);
-    notifications.show({ title: 'Link copied', message: 'Share it with fans or partners.', color: 'teal' });
+    notifications.show({ title: 'Link copied', message: 'Share it with fans or partners.', color: 'nightfall' });
   };
 
   const handleDownloadShareCard = async () => {
@@ -145,7 +145,7 @@ export default function EventDetails() {
     notifications.show({
       title: 'Scanner invited',
       message: 'Send the invitation code to your staff member.',
-      color: 'teal',
+      color: 'nightfall',
     });
   };
 
@@ -157,7 +157,7 @@ export default function EventDetails() {
     notifications.show({
       title: 'Invitation sent',
       message: `Gifted ${giftTier} access to ${giftRecipient.phone}.`,
-      color: 'teal',
+      color: 'nightfall',
       icon: <IconGift size={18} />,
     });
     inviteHandlers.close();
@@ -173,7 +173,7 @@ export default function EventDetails() {
             {dayjs(event.datetime).format('dddd, MMM D · h:mm A')} · {event.venue}, {event.city}
           </Text>
           <Group gap="sm" mt="sm">
-            <Badge color={event.status === 'Published' ? 'teal' : event.status === 'Live' ? 'blue' : 'gray'} radius="sm">
+            <Badge color={event.status === 'Published' ? 'nightfall' : event.status === 'Live' ? 'blue' : 'gray'} radius="sm">
               {event.status}
             </Badge>
             <Badge color="indigo" variant="light">
@@ -322,7 +322,7 @@ export default function EventDetails() {
               </ActionIcon>
               <ActionIcon
                 variant="light"
-                color="teal"
+                color="nightfall"
                 onClick={() => {
                   if (typeof navigator !== 'undefined' && navigator.share) {
                     navigator.share({ title: event.name, url: eventLink }).catch(() => handleCopyLink());
@@ -399,7 +399,7 @@ export default function EventDetails() {
                       <Text size="sm" fw={600}>
                         {progress}% filled
                       </Text>
-                      <Progress value={progress} color={progress > 80 ? 'teal' : 'yellow'} radius="xl" />
+                      <Progress value={progress} color={progress > 80 ? 'nightfall' : 'yellow'} radius="xl" />
                       <Text size="xs" c="dimmed">
                         {tier.sold.toLocaleString()} / {tier.total.toLocaleString()} sold
                       </Text>
@@ -468,7 +468,7 @@ export default function EventDetails() {
                   </Group>
                 </Table.Td>
                 <Table.Td>
-                  <Badge color={device.status === 'active' ? 'teal' : 'yellow'}>{device.status}</Badge>
+                  <Badge color={device.status === 'active' ? 'nightfall' : 'yellow'}>{device.status}</Badge>
                 </Table.Td>
               </Table.Tr>
             ))}

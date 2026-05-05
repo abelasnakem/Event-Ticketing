@@ -48,7 +48,7 @@ const events = [
 const statusColor = (status: string) => {
   switch (status) {
     case 'Published':
-      return 'teal';
+      return 'nightfall';
     case 'Draft':
       return 'gray';
     case 'Suspended':
@@ -127,7 +127,7 @@ export default function EventsManagement() {
                   <Stack gap={6}>
                     <Progress
                       value={Math.round((event.sold / event.total) * 100)}
-                      color={event.sold / event.total > 0.8 ? 'teal' : 'yellow'}
+                      color={event.sold / event.total > 0.8 ? 'nightfall' : 'yellow'}
                       radius="xl"
                       size="md"
                       styles={{ root: { backgroundColor: 'rgba(255, 255, 255, 0.12)' } }}

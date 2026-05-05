@@ -1,5 +1,5 @@
 import { AppShell, Avatar, Burger, Button, Divider, Group, NavLink, ScrollArea, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconCalendarPlus, IconLogout, IconTicket, IconUsersGroup, IconBell } from '@tabler/icons-react';
+import { IconCalendarEvent, IconCalendarPlus, IconLogout, IconTicket, IconUsersGroup, IconBell } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ColorSchemeToggle from '../common/ColorSchemeToggle';
@@ -7,7 +7,7 @@ import { clearOrganizerAccount } from '../../data/organizerAccount';
 
 const navLinks = [
   { label: 'Overview', path: '/organizer', icon: IconTicket },
-  { label: 'Create Event', path: '/organizer/events/new', icon: IconCalendarPlus },
+  { label: 'Events', path: '/organizer/events', icon: IconCalendarEvent },
   { label: 'Scanners', path: '/organizer#scanners', icon: IconUsersGroup },
 ];
 
@@ -82,7 +82,14 @@ export default function OrganizerLayout() {
                 </Text>
                 {navLinks.map((link) => {
                   const isScannersLink = link.path.includes('#scanners');
-                  const isActive = isScannersLink ? location.pathname === '/organizer' && location.hash === '#scanners' : link.path === '/organizer' ? location.pathname === '/organizer' && location.hash !== '#scanners' : location.pathname === link.path;
+                  const isEventsLink = link.path === '/organizer/events';
+                  const isActive = isScannersLink
+                    ? location.pathname === '/organizer' && location.hash === '#scanners'
+                    : link.path === '/organizer'
+                      ? location.pathname === '/organizer' && location.hash !== '#scanners'
+                      : isEventsLink
+                        ? location.pathname.startsWith('/organizer/events')
+                        : location.pathname === link.path;
                   return <SidebarItem key={link.path} label={link.label} icon={link.icon} active={isActive} onClick={() => navigate(link.path)} />;
                 })}
               </div>

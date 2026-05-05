@@ -36,7 +36,7 @@ const organizers = [
 const statusColor = (status: string) => {
   switch (status) {
     case 'Verified':
-      return 'teal';
+      return 'nightfall';
     case 'Pending':
       return 'yellow';
     case 'Suspended':
