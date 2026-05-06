@@ -4,7 +4,7 @@
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-blur: 18px;
-  --bg-gradient: linear-gradient(135deg, #0b0c1e 0%, #162000 50%, #05060f 100%);
+  --bg-gradient: #000000;
   --sidebar-width: 280px;
   --sidebar-bg: rgba(7, 8, 20, 0.55);
   --sidebar-border: rgba(255, 255, 255, 0.08);
