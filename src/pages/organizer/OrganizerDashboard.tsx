@@ -90,7 +90,6 @@ export default function OrganizerDashboard() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>#</Table.Th>
-                <Table.Th>Banner</Table.Th>
                 <Table.Th>Event</Table.Th>
                 <Table.Th>Date</Table.Th>
                 <Table.Th>Tickets</Table.Th>
@@ -107,20 +106,22 @@ export default function OrganizerDashboard() {
                   <Table.Tr key={event.id}>
                     <Table.Td>{index + 1}</Table.Td>
                     <Table.Td>
-                      <Image
-                        src={event.bannerUrl ?? 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=200&q=60'}
-                        alt={event.name}
-                        radius="md"
-                        w={64}
-                        h={44}
-                        fit="cover"
-                      />
-                    </Table.Td>
-                    <Table.Td>
-                      <Text fw={600}>{event.name}</Text>
-                      <Text size="xs" c="dimmed">
-                        {event.venue} · {event.city}
-                      </Text>
+                      <Group gap="md" wrap="nowrap">
+                        <Image
+                          src={event.bannerUrl ?? 'https://images.unsplash.com/photo-1515165562835-c4c1bfa5c0b0?auto=format&fit=crop&w=200&q=60'}
+                          alt={event.name}
+                          radius="md"
+                          w={64}
+                          h={44}
+                          fit="cover"
+                        />
+                        <div>
+                          <Text fw={600}>{event.name}</Text>
+                          <Text size="xs" c="dimmed">
+                            {event.venue} · {event.city}
+                          </Text>
+                        </div>
+                      </Group>
                     </Table.Td>
                     <Table.Td>{dayjs(event.datetime).format('MMM D, h:mm A')}</Table.Td>
                     <Table.Td>
